@@ -3,16 +3,24 @@
     "version": "1.0.0",
     "name": "Deep-ML Assistant",
     "action": {
-        "default_popup": "index.html"
+        "default_popup": "index.html",
+        "default_title": "Deep-ML Assistant"
     },
-    "permissions": [
-        "scripting"
-    ],
+    "permissions": ["storage", "tabs", "scripting", "sidePanel"],
     "host_permissions": [
         "https://www.deep-ml.com/*"
     ],
     "icons": {
         "32": "logo.png" 
-    }
+    },
+    "background": {
+        "service_worker": "service-worker.js"
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://www.deep-ml.com/*"],
+            "js": ["contentScript.js"]
+        }
+    ]
 
 }
