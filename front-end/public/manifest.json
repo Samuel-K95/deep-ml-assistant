@@ -1,0 +1,18 @@
+{
+    "manifest_version": 3,
+    "version": "1.0.0",
+    "name": "Deep-ML Assistant",
+    "action": {
+        "default_popup": "index.html"
+    },
+    "permissions": [
+        "scripting"
+    ],
+    "host_permissions": [
+        "https://www.deep-ml.com/*"
+    ],
+    "icons": {
+        "32": "logo.png" 
+    }
+
+}
