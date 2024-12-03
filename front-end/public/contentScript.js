@@ -51,14 +51,13 @@
 
   const newProblemOpened = () => {
     const analyzeExists = document.getElementById("analyze-btn");
-
     if (!analyzeExists) {
       const analyzeBtn = document.createElement("button");
       analyzeBtn.id = "analyze-btn";
       analyzeBtn.className = "custom-btn";
       analyzeBtn.title = "Click to analyze the question with gemini";
       analyzeBtn.textContent = "Analyse";
-      analyzeBtn.onclick = analyzeQuestion;
+      analyzeBtn.onclick = analyzeRequest;
       cardHeader.appendChild(analyzeBtn);
       currentProblemTitle = title.textContent;
       currentProblem = card_body.querySelector("div").textContent;
@@ -80,7 +79,8 @@
       const container = outputDiv.querySelectorAll(".test-case-result");
       container.forEach((div) => {
         let inside_div = div.querySelectorAll(".test-case-input");
-
+        erros = [];
+        currentCode = "";
         inside_div.forEach((in_div) => {
           let key = in_div.querySelector("div").textContent;
           let value = in_div.querySelector(".test-case-output").textContent;
@@ -92,7 +92,6 @@
         });
       });
     }
-
     console.log("errors", errors);
     return nestedDivs.length;
   };
@@ -101,7 +100,6 @@
     let check = checkRejectedText();
     checkdebug = document.getElementById("debug-btn");
     checkbtn = document.getElementById("push-btn");
-
     if (!check) {
       if (checkdebug) {
         codeCardHeader.removeChild(checkdebug);
@@ -145,7 +143,7 @@
     characterData: true,
   });
 
-  const analyzeQuestion = () => {
+  const analyzeRequest = () => {
     chrome.runtime.sendMessage({
       type: "COMMAND",
       data: {
@@ -162,6 +160,7 @@
         errors: errors,
       },
     });
+
     chrome.runtime.sendMessage({
       type: "COMMAND",
       data: {
