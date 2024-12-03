@@ -13,8 +13,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "STORE_DATA") {
     chrome.storage.session.get(null, (existingData) => {
       existingData.currentCode = "";
-      existingData.erros = "";
+      existingData.errors = [];
       const updatedData = { ...existingData, ...message.data };
+      console.log("serive", updatedData);
       chrome.storage.session.set(updatedData, () => {
         if (chrome.runtime.lastError) {
           console.error("Error storing data:", chrome.runtime.lastError);

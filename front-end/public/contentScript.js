@@ -76,8 +76,24 @@
 
   const checkRejectedText = () => {
     const nestedDivs = outputDiv.querySelectorAll(".rejected");
-    console.log("divs");
-    console.log(nestedDivs);
+    if (nestedDivs.length > 0) {
+      const container = outputDiv.querySelectorAll(".test-case-result");
+      container.forEach((div) => {
+        let inside_div = div.querySelectorAll(".test-case-input");
+
+        inside_div.forEach((in_div) => {
+          let key = in_div.querySelector("div").textContent;
+          let value = in_div.querySelector(".test-case-output").textContent;
+          temp = {
+            elem: key,
+            val: value,
+          };
+          errors.push(temp);
+        });
+      });
+    }
+
+    console.log("errors", errors);
     return nestedDivs.length;
   };
 
@@ -143,6 +159,7 @@
       type: "STORE_DATA",
       data: {
         currentCode: currentCode,
+        errors: errors,
       },
     });
     chrome.runtime.sendMessage({
