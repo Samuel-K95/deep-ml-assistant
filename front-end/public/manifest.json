@@ -4,20 +4,21 @@
     "name": "Deep-ML Assistant",
     "action": {
         "default_popup": "index.html",
-        "default_title": "Deep-ML Assistant"
+        "default_title": "Deep-ML Assistant",
+        "default_icon": {
+            "32": "logo.png" 
+        }
     },
     "permissions": ["storage", "tabs", "scripting", "sidePanel"],
     "host_permissions": [
         "https://www.deep-ml.com/*"
     ],
-    "icons": {
-        "32": "logo.png" 
-    },
     "background": {
         "service_worker": "service-worker.js"
     },
     "side_panel": {
-        "default_path": "sidePanel.html"
+        "default_path": "sidePanel.html",
+        "default_icon": "show.png"
     },
     "content_scripts": [
         {

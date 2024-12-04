@@ -43,7 +43,7 @@
   chrome.runtime.onMessage.addListener((obj, sender, response) => {
     const { type, value, problemId } = obj;
     if (type == "NEW") {
-      chrome.storage.sync.clear();
+      chrome.storage.session.clear();
       currentProblem = problemId;
       problemName = problemId;
       newProblemOpened();
@@ -110,6 +110,7 @@
         pushBtn.className = "custom-btn";
         pushBtn.title = "Click to push your code to github";
         pushBtn.textContent = "Push";
+        pushBtn.onclick = OpenNewTab;
         codeCardHeader.appendChild(pushBtn);
       }
     } else if (check) {
@@ -159,6 +160,15 @@
     chrome.runtime.sendMessage({ type: "OPEN_SIDEPANEL" });
   };
 
+  const OpenNewTab = () => {
+    chrome.runtime.sendMessage({
+      type: "OPEN_NEWTAB",
+      data: {
+        url: "index.html",
+      },
+    });
+  };
+
   const debugQuestion = () => {
     chrome.runtime.sendMessage({
       type: "COMMAND",
@@ -166,6 +176,7 @@
         command: "Debug",
       },
     });
+    chrome.runtime.sendMessage({ type: "OPEN_SIDEPANEL" });
   };
 
   newProblemOpened();
