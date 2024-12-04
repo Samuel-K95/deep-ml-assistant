@@ -11,8 +11,12 @@ class AnalyzeeProblemView(APIView):
         title = request.data.get('title')
         problem = request.data.get('problem')
         examples = request.data.get('example')
-        response = gemini_request.analyzeRequest({title: title, problem: problem, examples: examples})
-        return Response(response, status=status.HTTP_200_OK)
+        try:
+            response = gemini_request.analyzeRequest({title: title, problem: problem, examples: examples})
+            return Response(response, status=status.HTTP_200_OK)
+        except:
+            return Response({"error": "error while fetching from AI"}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 class DebugCodeView(APIView):
@@ -23,5 +27,6 @@ class DebugCodeView(APIView):
         errors = request.data.get('errors')
         response = gemini_request.debugRequest({"problem": problem, "errors": errors, "code": code, "example": example})
         return Response(response, status=status.HTTP_200_OK)
+        
 
 

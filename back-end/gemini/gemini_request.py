@@ -1,7 +1,10 @@
-import google.generativeai as genai
-from dotenv import load_dotenv
 import os
 import re
+from . import parser
+import json
+import google.generativeai as genai
+from dotenv import load_dotenv
+load_dotenv()
 
 def get_json_response(data):
     pattern = r'```json\s*(\{.*\})\s*```'
@@ -9,21 +12,15 @@ def get_json_response(data):
     return match.group(1) if match else {}
 
 
-
-load_dotenv()
-
-api_key = os.environ.get('API_KEY')
+api_key = os.environ.get('API')
 genai.configure(api_key=api_key)
 model = genai.GenerativeModel("gemini-1.5-flash")
 
 
 def analyzeRequest(data):
-    prompt = '''Analyze the following question ,which is displayed in the json format below, deeply and methodically using the Feynman Technique.
-    Begin by clearly identifying and explaining the core concepts in simple terms, as if teaching someone with no prior knowledge of the subject. Use analogies,
-    examples, or visual metaphors to reinforce understanding. Then, identify and address any gaps or uncertainties in the explanation,
-    revisiting and refining the analysis until it is comprehensive. Finally, tie the explanation back to the principles of the Feynman Technique
-    itself by demonstrating how breaking down and reconstructing the topic improves understanding. Deliver the insights and explanation in
-    an advanced, well-structured JSON format. 
+    prompt = '''Analyze the following question (in JSON format) using the Feynman Technique. Break it down into simple terms, explaining the core
+      concepts as if teaching a beginner. Use analogies, examples, or metaphors to clarify. Address uncertainties by refining the explanation until it’s complete. 
+      Conclude by demonstrating how applying the Feynman Technique deepened understanding. Deliver your analysis in a clear, short, and structured JSON format.
     Deliver the insights and explanation in the following structured JSON format every key should be structured in this exact way with no markup:
     {
         "core_concepts": {
@@ -48,13 +45,12 @@ def analyzeRequest(data):
 
 def debugRequest(data):
     prompt = '''
-        Analyze the following code problem deeply and identify any potential issues or errors. Begin by understanding the core problem described in the problem field, reviewing the provided example,
-        and then carefully examining the code field for logical or syntax errors. The errors field contains the errors the current code has, which resulted in  wrong answer. 
-        the code is in html form so adjust it accordingly when you analyze it.
-        Suggest possible solutions for fixing these issues and improving the code's overall quality, including clarifications on how the code works and its expected output.
-        Provide explanations for each error found, focusing on simple and clear explanations that someone with minimal knowledge of the subject could understand.
-        Suggest further improvements to prevent similar errors in the future, including best practices, error handling, or optimization techniques."
-        Input Data: ''' + f'''{data}''' + '''
+        Analyze the given problem from Deep-ML, focusing on identifying and resolving issues. Review the problem field for context, the example field for clarity, 
+        and the code field (in HTML format) for logical or syntax errors. The errors field lists problems that caused incorrect results.
+        Provide concise solutions to fix these errors and improve code quality, explaining each issue clearly and simply. Ensure the response is 
+        brief, clear, and actionable, including best practices and optimizations to prevent 
+        future errors.''' + f''' The input data is: {data}''' + '''
+
         the response should be in the following structure in json format with no markup
         {
             "debug_analysis": {
@@ -81,9 +77,12 @@ def debugRequest(data):
             }
             }
         '''
+    parsed_code = parser.html_parser(data['code'])
     response = model.generate_content(prompt)
     final_response = get_json_response(response.text)
-    return final_response 
+    dict_final = json.loads(final_response)
+    dict_final['parsed_code'] = parsed_code
+    return json.dumps(dict_final)
     
 
 

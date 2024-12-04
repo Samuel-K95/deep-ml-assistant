@@ -43,6 +43,7 @@
   chrome.runtime.onMessage.addListener((obj, sender, response) => {
     const { type, value, problemId } = obj;
     if (type == "NEW") {
+      chrome.storage.sync.clear();
       currentProblem = problemId;
       problemName = problemId;
       newProblemOpened();
@@ -112,21 +113,18 @@
         codeCardHeader.appendChild(pushBtn);
       }
     } else if (check) {
-      const formGroups = cardbody.getElementsByClassName("form-group")[0];
-      codemirror = formGroups.getElementsByClassName("CodeMirror")[0];
-      mirrorscroll = codemirror.getElementsByClassName("CodeMirror-scroll")[0];
-      sizer = mirrorscroll.getElementsByClassName("CodeMirror-sizer")[0];
-      insidediv = sizer.querySelector("div");
-      lines = insidediv.getElementsByClassName("CodeMirror-lines")[0];
-      presentdiv = lines.querySelector("div");
-      mirrorCode = presentdiv.getElementsByClassName("CodeMirror-code");
+      curr = document.getElementsByClassName("CodeMirror-code")[0];
+      currentCode = curr.outerHTML;
 
-      for (let mirrors of mirrorCode) {
-        const content = {
-          html: mirrors.innerHTML,
-        };
-        currentCode = content;
-      }
+      let temp = {
+        currentCode: currentCode,
+        errors: errors,
+      };
+
+      chrome.runtime.sendMessage({
+        type: "STORE_DATA",
+        data: temp,
+      });
 
       if (checkbtn) {
         codeCardHeader.removeChild(checkbtn);
@@ -151,23 +149,17 @@
   });
 
   const analyzeRequest = () => {
+    console.log("analyze request sent");
     chrome.runtime.sendMessage({
       type: "COMMAND",
       data: {
         command: "Analyze",
       },
     });
+    chrome.runtime.sendMessage({ type: "OPEN_SIDEPANEL" });
   };
 
   const debugQuestion = () => {
-    chrome.runtime.sendMessage({
-      type: "STORE_DATA",
-      data: {
-        currentCode: currentCode,
-        errors: errors,
-      },
-    });
-
     chrome.runtime.sendMessage({
       type: "COMMAND",
       data: {

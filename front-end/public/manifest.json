@@ -16,6 +16,9 @@
     "background": {
         "service_worker": "service-worker.js"
     },
+    "side_panel": {
+        "default_path": "sidePanel.html"
+    },
     "content_scripts": [
         {
             "matches": ["https://www.deep-ml.com/*"],

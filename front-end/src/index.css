@@ -7,7 +7,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  background-color: #1b3444;
+  background-color: #212529;
   color: white;
   min-width: 320px;
   min-height: 100vh;
