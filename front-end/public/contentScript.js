@@ -76,10 +76,10 @@
   const checkRejectedText = () => {
     const nestedDivs = outputDiv.querySelectorAll(".rejected");
     if (nestedDivs.length > 0) {
+      errors = [];
       const container = outputDiv.querySelectorAll(".test-case-result");
       container.forEach((div) => {
         let inside_div = div.querySelectorAll(".test-case-input");
-        erros = [];
         currentCode = "";
         inside_div.forEach((in_div) => {
           let key = in_div.querySelector("div").textContent;
@@ -92,7 +92,6 @@
         });
       });
     }
-    console.log("errors", errors);
     return nestedDivs.length;
   };
 
@@ -113,14 +112,22 @@
         codeCardHeader.appendChild(pushBtn);
       }
     } else if (check) {
-      currentCode = cardbody.getElementsByClassName("form-group");
-      const formGroups = cardbody.getElementsByClassName("form-group");
-      for (let formGroup of formGroups) {
+      const formGroups = cardbody.getElementsByClassName("form-group")[0];
+      codemirror = formGroups.getElementsByClassName("CodeMirror")[0];
+      mirrorscroll = codemirror.getElementsByClassName("CodeMirror-scroll")[0];
+      sizer = mirrorscroll.getElementsByClassName("CodeMirror-sizer")[0];
+      insidediv = sizer.querySelector("div");
+      lines = insidediv.getElementsByClassName("CodeMirror-lines")[0];
+      presentdiv = lines.querySelector("div");
+      mirrorCode = presentdiv.getElementsByClassName("CodeMirror-code");
+
+      for (let mirrors of mirrorCode) {
         const content = {
-          html: formGroup.innerHTML,
+          html: mirrors.innerHTML,
         };
         currentCode = content;
       }
+
       if (checkbtn) {
         codeCardHeader.removeChild(checkbtn);
       }
