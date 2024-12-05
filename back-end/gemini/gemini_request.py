@@ -60,19 +60,19 @@ def debugRequest(data):
                 "expected_output": "Explanation of the expected output and any discrepancies with what was actually observed."
                 },
                 "code": {
-                "errors": [
-                    {
-                    "error": "Description of the error found in the code.",
-                    "location": "Line number or area in the code where the issue was identified.",
-                    "suggestion": "Suggestion for fixing the error."
-                    }
-                ],
-                "possible_improvements": [
-                    {
-                    "improvement": "Description of any additional improvements that could be made to the code.",
-                    "reason": "Explanation of why this change will improve the code."
-                    }
-                ]
+                    "errors": [
+                        {
+                        "error": "Description of the error found in the code.",
+                        "location": "Line number or area in the code where the issue was identified.",
+                        "suggestion": "Suggestion for fixing the error."
+                        }
+                    ],
+                    "possible_improvements": [
+                        {
+                        "improvement": "Description of any additional improvements that could be made to the code.",
+                        "reason": "Explanation of why this change will improve the code."
+                        }
+                    ]
                 }
             }
             }

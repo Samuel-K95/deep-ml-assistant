@@ -1,22 +1,26 @@
 function loadSidePanelData() {
   const target = document.getElementById("outer-continer");
-  console.log("target", target);
+  problemTitle = document.getElementById("problem-title");
   if (target) {
     chrome.storage.session.get(null, (existingData) => {
       if (Object.keys(existingData).length === 0) {
         target.textContent = "";
+        problemTitle.textContent = "";
       } else if (existingData.gemini_response) {
-        console.log("gem response", existingData);
+        if (problemTitle && problemTitle.textContent === "") {
+          (problemTitle.textContent = existingData.title),
+            (problemTitle.className = "title");
+        }
+
+        console.log("gem response", existingData.gemini_response);
         const content = document.createElement("div");
         content.className = "container";
         if (existingData.response_type === "analyze") {
-          buildAnalyzeLayout(
-            existingData.title,
-            existingData.gemini_response,
-            content
-          );
-          target.appendChild(content);
+          buildAnalyzeLayout(existingData.gemini_response, content);
+        } else {
+          buildDebugLayout(existingData.gemini_response, content);
         }
+        target.appendChild(content);
       }
     });
   }
@@ -30,14 +34,8 @@ document.addEventListener("DOMContentLoaded", () => {
   loadSidePanelData();
 });
 
-const buildAnalyzeLayout = (title, analyze, container) => {
-  console.log("Building analyze");
-  console.log(analyze);
-  console.log(typeof analyze);
-  problemTitle = document.createElement("h1");
-  problemTitle.textContent = title;
-  problemTitle.className = "title";
-  container.appendChild(problemTitle);
+const buildAnalyzeLayout = (aiResponse, container) => {
+  let analyze = JSON.parse(aiResponse);
 
   responseType = document.createElement("h2");
   responseType.textContent = "Problem Analysis";
@@ -63,9 +61,9 @@ const buildAnalyzeLayout = (title, analyze, container) => {
 
   examples = analyze.core_concepts.examples;
   exampleContainer = document.createElement("div");
-  exampleList = document.createElement("li");
+  exampleList = document.createElement("ul");
   examples.forEach((element) => {
-    list = document.createElement("ul");
+    list = document.createElement("li");
     list.textContent = element;
     exampleList.appendChild(list);
   });
@@ -78,10 +76,10 @@ const buildAnalyzeLayout = (title, analyze, container) => {
   gapsIdentified.className = "header";
   container.appendChild(gapsIdentified);
 
-  gaps = document.createElement("li");
+  gaps = document.createElement("ul");
   fetchedgap = analyze.gaps_identified.gaps;
   fetchedgap.forEach((element) => {
-    list = document.createElement("ul");
+    list = document.createElement("li");
     list.textContent = element;
     gaps.appendChild(list);
   });
@@ -92,47 +90,109 @@ const buildAnalyzeLayout = (title, analyze, container) => {
   solutions.className = "header";
   container.appendChild(solutions);
 
-  sols = document.createElement("li");
+  sols = document.createElement("ul");
   fetchedsols = analyze.gaps_identified.solutions;
   fetchedsols.forEach((element) => {
-    list = document.createElement("ul");
+    list = document.createElement("li");
     list.textContent = element;
     sols.appendChild(list);
   });
   container.appendChild(sols);
+};
 
-  feynman = document.createElement("h3");
-  feynman.textContent = "Feynman Technique Analysis";
-  feynman.className = "header";
-  container.appendChild(feynman);
+const buildDebugLayout = (aiResponse, container) => {
+  let debug = JSON.parse(aiResponse);
+  console.log("debug", debug);
 
-  breakdown = document.createElement("h4");
-  breakdown.textContent = "Breakdown";
-  breakdown.className = "inside-header";
-  container.appendChild(breakdown);
+  let responseType = document.createElement("h2");
+  responseType.textContent = "Debug Analysis";
+  responseType.className = "resonse-type";
+  container.appendChild(responseType);
 
-  breakdownAnalysis = document.createElement("div");
-  breakdownAnalysis.textContent = analyze.feynman_analysis.breakdown;
-  breakdownAnalysis.className = "inner-content";
-  container.appendChild(breakdownAnalysis);
+  let problemTitle = document.createElement("h3");
+  problemTitle.textContent = "Problem";
+  problemTitle.className = "title";
+  container.appendChild(problemTitle);
 
-  reconstruction = document.createElement("h4");
-  reconstruction.textContent = "Reconstruction";
-  reconstruction.className = "inside-header";
-  container.appendChild(reconstruction);
+  let problemContiner = document.createElement("div");
+  problemContiner.textContent = debug.debug_analysis.problem;
+  problemContiner.className = "content";
+  container.appendChild(problemContiner);
 
-  reconstructionAnalysis = document.createElement("div");
-  reconstructionAnalysis.textContent = analyze.feynman_analysis.reconstruction;
-  reconstructionAnalysis.className = "inner-content";
-  container.appendChild(reconstructionAnalysis);
+  let exampleTitle = document.createElement("h3");
+  exampleTitle.textContent = "Example";
+  exampleTitle.className = "title";
+  container.appendChild(exampleTitle);
 
-  lessonLearned = document.createElement("h4");
-  lessonLearned.textContent = "Lesson Learned";
-  lessonLearned.className = "inside-header";
-  container.appendChild(lessonLearned);
+  let inputTitle = document.createElement("h4");
+  inputTitle.textContent = "Input";
+  inputTitle.className = "innerTitle";
+  container.appendChild(inputTitle);
 
-  LessonAnalysis = document.createElement("div");
-  LessonAnalysis.textContent = analyze.feynman_analysis.lessons_learned;
-  LessonAnalysis.className = "inner-content";
-  container.appendChild(LessonAnalysis);
+  let inputContiner = document.createElement("div");
+  inputContiner.textContent = debug.debug_analysis.example.input;
+  inputContiner.className = "content";
+  container.append(inputContiner);
+
+  let expectedTitle = document.createElement("h4");
+  expectedTitle.textContent = "Expected Output";
+  expectedTitle.className = "innerTitle";
+  container.appendChild(expectedTitle);
+
+  let expectedContainer = document.createElement("div");
+  expectedContainer.textContent = debug.debug_analysis.example.expected_output;
+  expectedContainer.className = "content";
+  container.append(expectedContainer);
+
+  let codeTitle = document.createElement("h3");
+  codeTitle.textContent = "Code Analysis";
+  codeTitle.className = "title";
+  container.appendChild(codeTitle);
+
+  let codeErros = document.createElement("h4");
+  codeErros.textContent = "Errors";
+  codeErros.className = "innerTitle";
+  container.appendChild(codeErros);
+
+  let errors = debug.debug_analysis.code.errors;
+  let errorContainer = document.createElement("ul");
+  errors.forEach((error) => {
+    let currError = document.createElement("li");
+    let err = document.createElement("div");
+    err.textContent = error.error;
+    currError.appendChild(err);
+
+    let loc = document.createElement("div");
+    loc.textContent = error.locatipn;
+    currError.appendChild(loc);
+
+    let sugg = document.createElement("div");
+    sugg.textContent = error.suggestion;
+    currError.appendChild(sugg);
+
+    errorContainer.appendChild(currError);
+  });
+  container.appendChild(errorContainer);
+
+  let possImprov = document.createElement("h4");
+  possImprov.textContent = "Possible Improvments";
+  possImprov.className = "innerTitle";
+  container.appendChild(possImprov);
+
+  let improvments = debug.debug_analysis.code.possible_improvements;
+  console.log("improv", improvments);
+  let improvContainer = document.createElement("ul");
+  improvments.forEach((improvment) => {
+    let currImprov = document.createElement("li");
+    let improv = document.createElement("div");
+    improv.textContent = improvment.improvement;
+    currImprov.appendChild(improv);
+
+    let res = document.createElement("div");
+    res.textContent = improvment.reason;
+    currImprov.appendChild(res);
+
+    improvContainer.appendChild(currImprov);
+  });
+  container.appendChild(improvContainer);
 };
