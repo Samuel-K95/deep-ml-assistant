@@ -4,6 +4,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from .serializers import ProfileSerializer, ProfileSerializerForAllFields
 from .models import CustomUser
+from .github import Github
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -29,13 +30,16 @@ class userRegisterAPIView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         print('hrere', request.data)
         response = super().create(request, *args, **kwargs)
+        github = Github(user_name= request.data['github_username'], access_token=request.data['access_token'])
+        
         user = self.get_queryset().get(email = request.data['email'])
-        print('user', user)
         refresh = RefreshToken.for_user(user)
+        repos = github.list_repos()
 
         response_data = response.data
         response_data['refresh'] = str(refresh)
         response_data['access'] = str(refresh.access_token)
+        response_data['repos'] = str(repos)
 
         return Response(response_data, status=status.HTTP_201_CREATED)
     
@@ -55,7 +59,6 @@ class getUserAPIView(generics.RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
-    
 
 class LoginAPiView(generics.GenericAPIView):
     serializer_class = ProfileSerializer
@@ -67,8 +70,10 @@ class LoginAPiView(generics.GenericAPIView):
             serializer.is_valid(raise_exception=True)
 
             user = serializer.validated_data['user']
+            github = Github(user_name=user.github_username, access_token=user.access_token)
+            repos = github.list_repos()
             refresh = RefreshToken.for_user(user)
 
-            return Response ({'refresh': str(refresh), 'access': str(refresh.access_token), 'username': user.username}, status=status.HTTP_200_OK)
+            return Response ({'refresh': str(refresh), 'access': str(refresh.access_token), 'username': user.username, 'repos': repos}, status=status.HTTP_200_OK)
         except:
             return Response({'error': 'invalid login'}, status=status.HTTP_401_UNAUTHORIZED)

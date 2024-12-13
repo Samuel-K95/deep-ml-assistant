@@ -3,7 +3,6 @@
     "version": "1.0.0",
     "name": "Deep-ML Assistant",
     "action": {
-        "default_popup": "index.html",
         "default_title": "Deep-ML Assistant",
         "default_icon": {
             "32": "logo.png" 
