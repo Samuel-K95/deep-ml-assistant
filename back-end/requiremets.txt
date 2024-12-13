@@ -4,3 +4,4 @@ python-dotenv
 requests
 django-cors-headers
 bs4
+djangorestframework-simplejwt
