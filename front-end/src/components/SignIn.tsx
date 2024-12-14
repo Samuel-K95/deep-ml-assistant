@@ -4,11 +4,10 @@ import { NavLink } from "react-router";
 type Inputs = {
   email: string;
   password: string;
-  confirm: string;
 };
 
-const SignUp = () => {
-  const { register, handleSubmit, formState, watch } = useForm<Inputs>();
+const SignIn = () => {
+  const { register, handleSubmit, formState } = useForm<Inputs>();
   const { errors } = formState;
 
   const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
@@ -16,14 +15,12 @@ const SignUp = () => {
   return (
     <div className="flex flex-col w-full itmes-center text-gray-400 gap-5">
       <h1 className="text-lg font-bold">Deep-ML Assistant</h1>
-
       <div className="w-full flex flex-col items-center text-gray-400">
         <div className="flex w-full items-center justify-center gap-5">
           <div className="h-[0.5px] bg-gray-400 border-solid w-1/12 rounded-lg"></div>
-          <h2>Create an account</h2>
+          <h2>Sign In using email</h2>
           <div className="h-[0.5px] bg-gray-400 border-solid w-1/12 rounded-lg"></div>
         </div>
-
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="w-[25%] flex flex-col gap-5 p-5"
@@ -62,34 +59,33 @@ const SignUp = () => {
           <p className="inputErrors">{errors.password?.message}</p>
 
           <input
-            type="password"
-            id="confirm"
-            placeholder="Confirm password"
-            className="bg-transparent text-white border-solid border-gray-300 border-[1px] rounded-lg text-[12px] p-2 pl-5"
-            {...register("confirm", {
-              required: {
-                value: true,
-                message: "Confirm password is required",
-              },
-              validate: (val: string) => {
-                if (watch("password") != val) {
-                  return "Your password doesn't match";
-                }
-              },
-            })}
-          />
-          <p className="inputErrors">{errors.confirm?.message}</p>
-
-          <input
             type="submit"
-            value="Submit"
-            className="bg-green-700 rounded-md p-3 text-white border-none text-[16px] font-bold cursor-pointer"
+            value="Sign In"
+            className="bg-green-700 rounded-md p-3 text-white border-none text-[16px] font-bold cursor-pointer hover:bg-green-600"
           />
         </form>
+
+        <div className="flex w-full items-center justify-center gap-5">
+          <div className="h-[0.5px] bg-gray-400 border-solid w-1/12 rounded-lg"></div>
+          <p className="flex">Or Continue with</p>
+          <div className="h-[0.5px] bg-gray-400 border-solid w-1/12 rounded-lg"></div>
+        </div>
+
+        <button className="flex text-20 gap-5 m-5 w-[25%] bg-[#0f1216] items-center justify-center p-3 rounded-lg hover:bg-[#161B22]">
+          <>
+            <img
+              src="./images/github-sign.png"
+              alt="github"
+              width={25}
+              height={25}
+            />
+            Github
+          </>
+        </button>
         <p className="font-medium">
-          Already have an account?{" "}
+          Don't have an account?{" "}
           <span className="text-blue-400">
-            <NavLink to="/login">Sign In</NavLink>
+            <NavLink to="/register">Sign Up</NavLink>
           </span>
         </p>
       </div>
@@ -97,4 +93,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default SignIn;

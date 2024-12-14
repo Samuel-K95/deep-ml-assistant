@@ -2,11 +2,14 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import AllowAny
 from . import gemini_request
 
 # Create your views here.
 
 class AnalyzeeProblemView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
         title = request.data.get('title')
         problem = request.data.get('problem')
@@ -20,6 +23,8 @@ class AnalyzeeProblemView(APIView):
 
 
 class DebugCodeView(APIView):
+    permission_classes = [AllowAny]
+    
     def post(self, request):
         problem = request.data.get('problem')
         example = request.data.get('example')
