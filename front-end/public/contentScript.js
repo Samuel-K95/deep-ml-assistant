@@ -110,6 +110,19 @@
         pushBtn.className = "custom-btn";
         pushBtn.title = "Click to push your code to github";
         pushBtn.textContent = "Push";
+
+        curr = document.getElementsByClassName("CodeMirror-code")[0];
+        currentCode = curr.outerHTML;
+
+        let temp = {
+          currentCode: currentCode,
+        };
+
+        chrome.runtime.sendMessage({
+          type: "STORE_DATA",
+          data: temp,
+        });
+
         pushBtn.onclick = OpenNewTab;
         codeCardHeader.appendChild(pushBtn);
       }

@@ -7,7 +7,7 @@ const Buttons = (prop: buttonProp) => {
   return (
     <>
       <button
-        className="bg-green-700 rounded-md p-3 text-white border-none text-[16px] font-bold w-1/2"
+        className="bg-green-700 rounded-md p-3 text-white border-none text-[16px] font-bold flex"
         id="analyze-btn"
         onClick={handleclick}
       >

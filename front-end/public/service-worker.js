@@ -1,7 +1,5 @@
 chrome.tabs.onUpdated.addListener((tabId, tab) => {
-  console.log("REloaddeddddd!");
   if (tab.url && tab.url.includes("deep-ml.com/problem")) {
-    console.log("New");
     chrome.storage.session.clear();
     const queryParameters = tab.url.split("/")[4];
     chrome.tabs.sendMessage(tabId, {
@@ -15,7 +13,7 @@ chrome.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: true })
   .catch((error) => console.error(error));
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, sender) => {
   if (message.type === "STORE_DATA") {
     chrome.storage.session.get(null, (existingData) => {
       let updatedData = { ...existingData, ...message.data };

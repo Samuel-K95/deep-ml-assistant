@@ -1,13 +1,22 @@
 import { NavLink } from "react-router-dom";
 import "./App.css";
+import Problem from "./components/Problem";
 
 function App() {
   return (
-    <div className="flex flex-col items-center justify-center w-full gap-3">
-      <h1 className="text-lg">Deep-ML Assistant</h1>
-      <NavLink to={"register"}>Sign Up</NavLink>
-      <NavLink to={"login"}>Sign In</NavLink>
-    </div>
+    <>
+      <header className="w-full flex justify-between">
+        <div className="flex gap-5">Deep-ML Assistant</div>
+
+        <div className="flex ml-20">
+          <NavLink to={"login"}>Sign In</NavLink>
+        </div>
+      </header>
+
+      <main className="flex flex-col items-center justify-around">
+        <Problem />
+      </main>
+    </>
   );
 }
 

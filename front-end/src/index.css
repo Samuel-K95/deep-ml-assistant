@@ -2,13 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+/* #212529; */
 body {
-  margin: 0;
+  margin-bottom: 20px;
+  padding: 10px;
   display: flex;
-  background-color: #212529;
+  background-color: #1a1a1a;
   align-items: center;
   justify-content: space-around;
   color: white;
+  overflow-y: auto;
 }
 
 .inputErrors {
