@@ -1,10 +1,9 @@
 chrome.tabs.onUpdated.addListener((tabId, tab) => {
-  if (tab.url && tab.url.includes("deep-ml.com/problem")) {
-    chrome.storage.session.clear();
-    const queryParameters = tab.url.split("/")[4];
+  if (tab.title && tab.title.includes("deep-ml.com/problems")) {
+    console.log(tab);
     chrome.tabs.sendMessage(tabId, {
       type: "NEW",
-      problemId: queryParameters,
+      id: tabId,
     });
   }
 });
@@ -14,6 +13,7 @@ chrome.sidePanel
   .catch((error) => console.error(error));
 
 chrome.runtime.onMessage.addListener((message, sender) => {
+  console.log("message recienved");
   if (message.type === "STORE_DATA") {
     chrome.storage.session.get(null, (existingData) => {
       let updatedData = { ...existingData, ...message.data };

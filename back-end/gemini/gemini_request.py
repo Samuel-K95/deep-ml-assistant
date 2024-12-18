@@ -38,7 +38,6 @@ def analyzeRequest(data):
         }
     }
     ''' + f''' the input data is: {data}'''
-
     response = model.generate_content(prompt)
     final_response = get_json_response(response.text)
     return final_response 
@@ -77,6 +76,7 @@ def debugRequest(data):
             }
             }
         '''
+    
     parsed_code = parser.html_parser(data['code'])
     response = model.generate_content(prompt)
     final_response = get_json_response(response.text)

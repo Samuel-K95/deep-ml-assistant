@@ -10,7 +10,7 @@
     },
     "permissions": ["storage", "tabs", "scripting", "sidePanel"],
     "host_permissions": [
-        "https://www.deep-ml.com/*"
+        "*://www.deep-ml.com/*"
     ],
     "background": {
         "service_worker": "service-worker.js"
@@ -21,7 +21,7 @@
     },
     "content_scripts": [
         {
-            "matches": ["https://www.deep-ml.com/*"],
+            "matches": ["*://www.deep-ml.com/*"],
             "js": ["contentScript.js"]
         }
     ]

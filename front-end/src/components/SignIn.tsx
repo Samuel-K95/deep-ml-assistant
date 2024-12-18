@@ -12,6 +12,35 @@ const SignIn = () => {
 
   const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
 
+  let getToken = async () => {
+    let response = await fetch(
+      "http://127.0.0.1:8000/api/user/auth/get_token/",
+      {
+        method: "GET",
+      }
+    );
+
+    if (response.status === 200) {
+      return response;
+    }
+
+    return "";
+  };
+
+  const handleSignIn = async () => {
+    let response = await fetch("http://127.0.0.1:8000/accounts/github/login/", {
+      method: "GET",
+    });
+
+    if (response.status === 200) {
+      let access_token = await getToken();
+
+      if (access_token != "") {
+        console.log("accesstoken", access_token);
+      }
+    }
+  };
+
   return (
     <div className="flex justify-center items-center min-h-screen">
       <div className="flex flex-col w-full itmes-center text-gray-400 gap-5">
@@ -74,7 +103,10 @@ const SignIn = () => {
             <div className="h-[0.5px] bg-gray-400 border-solid w-1/12 rounded-lg"></div>
           </div>
 
-          <button className="flex text-20 gap-5 m-5 w-[25%] bg-[#0f1216] items-center justify-center p-3 rounded-lg hover:bg-[#161B22]">
+          <button
+            className="flex text-20 gap-5 m-5 w-[25%] bg-[#0f1216] items-center justify-center p-3 rounded-lg hover:bg-[#161B22]"
+            onClick={() => handleSignIn}
+          >
             <>
               <img
                 src="./images/github-sign.png"

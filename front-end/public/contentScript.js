@@ -1,168 +1,232 @@
 (() => {
-  let problemName = "";
-  let currentProblem = "";
-  let currentProblemTitle = "";
-  let currentCode = "";
-  let errors = [];
-  let checkbtn = document.getElementById("push-btn");
-  let checkdebug = document.getElementById("debug-btn");
-  const parent = document.getElementById("codingSection");
-  const codeCard = parent.getElementsByClassName("card")[0];
-  const codeCardHeader = codeCard.getElementsByClassName("card-header")[0];
-  const cardbody = parent.getElementsByClassName("card-body")[0];
-  const problemContainer = document.getElementById("problemSection");
-  const card = problemContainer.getElementsByClassName("card")[0];
-  const cardHeader = card.getElementsByClassName("card-header")[0];
-  const title = cardHeader.querySelector("h2");
-  const card_body = card.getElementsByClassName("card-body")[0];
-  const example = card_body.querySelector("pre").textContent;
-
-  const outputDiv = document.getElementById("output");
-
-  if (!document.getElementById("custom-btn-style")) {
-    const style = document.createElement("style");
-    style.id = "custom-btn-style";
-    style.textContent = `
-      .custom-btn {
-          background-color: #047857;
-          color: white; 
-          padding: 12px; 
-          border: none; 
-          border-radius: 4px; 
-          font-size: 16px; 
-          font-weight: bold; 
-          cursor: pointer; 
-      }
-      .custom-btn:hover {
-          background-color: #065F46; 
-      }
-    `;
-    document.head.appendChild(style);
-  }
-
   chrome.runtime.onMessage.addListener((obj, sender, response) => {
-    const { type, value, problemId } = obj;
-    if (type == "NEW") {
-      chrome.storage.session.clear();
-      currentProblem = problemId;
-      problemName = problemId;
+    const { type, problemId } = obj;
+    chrome.storage.session.clear();
+    if (type === "NEW") {
+      console.log("new problem loaded");
       newProblemOpened();
     }
   });
 
+  const style = document.createElement("style");
+  style.textContent = `
+    .custom-analyze-btn {
+      position: fixed;
+      left: 20px;
+      bottom: 20px;
+      background-color: green;
+      color: white;
+      font-weight: bold;
+      padding: 10px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .custom-debug-btn{
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      background-color: red;
+      color: white;
+      font-weight: bold;
+      padding: 10px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+  `;
+  document.head.append(style);
+
+  let currentProblem = "";
+  let currentTitle = "";
+  let currentExample = [];
+  let currentCodeNode = "";
+
+  let debugExists = document.getElementById("debug-btn");
+  let debugBtn = document.createElement("button");
+
+  let pushExists = document.getElementById("push-btn");
+  let pushBtn = document.createElement("button");
+
   const newProblemOpened = () => {
-    const analyzeExists = document.getElementById("analyze-btn");
+    let analyzeExists = document.getElementById("analyze-btn");
+    let analyzeBtn = document.createElement("button");
+
     if (!analyzeExists) {
-      const analyzeBtn = document.createElement("button");
       analyzeBtn.id = "analyze-btn";
-      analyzeBtn.className = "custom-btn";
+      analyzeBtn.className = "custom-analyze-btn";
       analyzeBtn.title = "Click to analyze the question with gemini";
       analyzeBtn.textContent = "Analyse";
       analyzeBtn.onclick = analyzeRequest;
-      cardHeader.appendChild(analyzeBtn);
-      currentProblemTitle = title.textContent;
-      currentProblem = card_body.querySelector("div").textContent;
-
-      chrome.runtime.sendMessage({
-        type: "STORE_DATA",
-        data: {
-          title: currentProblemTitle,
-          problem: currentProblem,
-          example: example,
-        },
-      });
     }
-  };
-
-  const checkRejectedText = () => {
-    const nestedDivs = outputDiv.querySelectorAll(".rejected");
-    if (nestedDivs.length > 0) {
-      errors = [];
-      const container = outputDiv.querySelectorAll(".test-case-result");
-      container.forEach((div) => {
-        let inside_div = div.querySelectorAll(".test-case-input");
-        currentCode = "";
-        inside_div.forEach((in_div) => {
-          let key = in_div.querySelector("div").textContent;
-          let value = in_div.querySelector(".test-case-output").textContent;
-          temp = {
-            elem: key,
-            val: value,
-          };
-          errors.push(temp);
-        });
-      });
-    }
-    return nestedDivs.length;
-  };
-
-  const observer = new MutationObserver(() => {
-    let check = checkRejectedText();
-    checkdebug = document.getElementById("debug-btn");
-    checkbtn = document.getElementById("push-btn");
-    if (!check) {
-      if (checkdebug) {
-        codeCardHeader.removeChild(checkdebug);
+    const config = { attributes: true, childList: true, subtree: true };
+    let callback = (mutationsList) => {
+      for (const mutation of mutationsList) {
+        if (mutation.type === "childList") {
+          let hcontainer = document.getElementsByClassName("prose")[0];
+          if (hcontainer) {
+            observeProseContainer(hcontainer);
+          }
+        }
       }
-      if (!checkbtn) {
-        const pushBtn = document.createElement("button");
-        pushBtn.id = "push-btn";
-        pushBtn.className = "custom-btn";
-        pushBtn.title = "Click to push your code to github";
-        pushBtn.textContent = "Push";
+    };
 
-        curr = document.getElementsByClassName("CodeMirror-code")[0];
-        currentCode = curr.outerHTML;
+    const parentObserver = new MutationObserver(callback);
+    parentObserver.observe(document.body, config);
 
-        let temp = {
-          currentCode: currentCode,
-        };
+    function observeProseContainer(targetNode) {
+      const config = { attributes: true, childList: true, subtree: true };
 
-        chrome.runtime.sendMessage({
-          type: "STORE_DATA",
-          data: temp,
-        });
+      const proseCallback = (mutationsList) => {
+        let container = targetNode.getElementsByClassName("text-black")[0];
 
-        pushBtn.onclick = OpenNewTab;
-        codeCardHeader.appendChild(pushBtn);
-      }
-    } else if (check) {
-      curr = document.getElementsByClassName("CodeMirror-code")[0];
-      currentCode = curr.outerHTML;
+        if (container) {
+          parentObserver.disconnect();
+          currentTitle = container.textContent;
 
-      let temp = {
-        currentCode: currentCode,
-        errors: errors,
+          const descriptionElement = document.querySelector(
+            ".prose .space-y-2 .ml-6"
+          );
+          if (descriptionElement) {
+            currentProblem = descriptionElement.textContent.trim();
+          }
+
+          const exampleContainers = document.querySelectorAll(
+            ".prose .space-y-4.container"
+          );
+
+          let temp = [];
+          exampleContainers.forEach((container) => {
+            const inputElement = Array.from(
+              container.querySelectorAll("h3")
+            ).find((h3) => h3.textContent.includes("Input"));
+            const outputElement = Array.from(
+              container.querySelectorAll("h3")
+            ).find((h3) => h3.textContent.includes("Output"));
+
+            if (inputElement && outputElement) {
+              const inputPre = inputElement.nextElementSibling;
+              const outputPre = outputElement.nextElementSibling;
+
+              if (
+                inputPre &&
+                inputPre.tagName === "PRE" &&
+                outputPre &&
+                outputPre.tagName === "PRE"
+              ) {
+                const example = {
+                  input: inputPre.textContent.trim(),
+                  output: outputPre.textContent.trim(),
+                };
+                temp.push(example);
+              }
+            }
+          });
+          currentExample = temp;
+          document.body.append(analyzeBtn);
+          proseObserver.disconnect();
+        }
       };
-
-      chrome.runtime.sendMessage({
-        type: "STORE_DATA",
-        data: temp,
-      });
-
-      if (checkbtn) {
-        codeCardHeader.removeChild(checkbtn);
-      }
-      if (!checkdebug) {
-        const debugBtn = document.createElement("button");
-        debugBtn.id = "debug-btn";
-        debugBtn.className = "custom-btn";
-        debugBtn.title = "Click to debug your code using gemini";
-        debugBtn.textContent = "Debug";
-        debugBtn.style.backgroundColor = "red";
-        debugBtn.onclick = debugQuestion;
-        codeCardHeader.appendChild(debugBtn);
-      }
+      const proseObserver = new MutationObserver(proseCallback);
+      proseObserver.observe(targetNode, config);
     }
-  });
+  };
 
-  observer.observe(outputDiv, {
+  outContainer = document.getElementsByClassName(
+    "rounded-xl border bg-card text-card-foreground shadow"
+  )[0];
+
+  const outputContainerCallback = () => {
+    let container = document.getElementsByClassName("output-container")[0];
+    if (container) {
+      outPutCallBackObserver(container);
+    }
+
+    function outPutCallBackObserver(targetNode) {
+      const config = { attributes: true, childList: true, subtree: true };
+      const outPutCallback = () => {
+        debugExists = document.getElementById("debug-btn");
+        pushExists = document.getElementById("push-btn");
+
+        let container = document.getElementsByClassName("output-container")[0];
+
+        if (container) {
+          outPutObserver.disconnect();
+          let statCOnt = container.getElementsByClassName("p-6")[1];
+          if (statCOnt) {
+            let statSpan = statCOnt.querySelector("span");
+            if (statSpan) {
+              let content = statSpan.textContent.trim();
+              console.log("status", content);
+              console.log("debug", debugExists, "push", pushExists);
+
+              if (content === "Failed") {
+                if (pushExists && document.body.contains(pushBtn)) {
+                  pushBtn.remove();
+                }
+                if (!debugExists) {
+                  debugBtn.id = "debug-btn";
+                  debugBtn.textContent = "Debug";
+                  debugBtn.className = "custom-debug-btn";
+                  debugBtn.title = "Press to debug using gemini";
+                  document.body.append(debugBtn);
+                }
+                debugBtn.onclick = debugQuestion;
+              } else {
+                console.log("accepted here");
+                if (debugExists && document.body.contains(debugBtn)) {
+                  debugBtn.remove();
+                }
+                if (!pushExists) {
+                  pushBtn.id = "push-btn";
+                  pushBtn.textContent = "Push";
+                  pushBtn.className = "custom-debug-btn";
+                  pushBtn.style.backgroundColor = "green";
+                  pushBtn.title = "Press to push to github";
+                  document.body.append(pushBtn);
+                }
+                pushBtn.onclick = OpenNewTab;
+              }
+            } else {
+              console.log("Span element not found.");
+            }
+          } else {
+            console.log("p-6 container not found.");
+          }
+        } else {
+          console.log("Output container not found.");
+        }
+      };
+      const outPutObserver = new MutationObserver(outPutCallback);
+      outPutObserver.observe(targetNode, config);
+    }
+  };
+
+  outPutContainerObserver = new MutationObserver(outputContainerCallback);
+  outPutContainerObserver.observe(outContainer, {
+    attributes: true,
     childList: true,
     subtree: true,
-    characterData: true,
   });
 
+  function debounce(func, delay) {
+    let timeout;
+    return function (...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        func.apply(this, args);
+      }, delay);
+    };
+  }
+
   const analyzeRequest = () => {
+    chrome.runtime.sendMessage({
+      type: "STORE_DATA",
+      data: {
+        title: currentTitle,
+        problem: currentProblem,
+        example: currentExample,
+      },
+    });
     console.log("analyze request sent");
     chrome.runtime.sendMessage({
       type: "COMMAND",
@@ -174,6 +238,18 @@
   };
 
   const OpenNewTab = () => {
+    currentCodeNode = getCode();
+    let temp = {
+      currentCode: currentCodeNode,
+      title: currentTitle,
+      problem: currentProblem,
+      example: currentExample,
+    };
+
+    chrome.runtime.sendMessage({
+      type: "STORE_DATA",
+      data: temp,
+    });
     chrome.runtime.sendMessage({
       type: "OPEN_NEWTAB",
       data: {
@@ -183,6 +259,15 @@
   };
 
   const debugQuestion = () => {
+    currentCodeNode = getCode();
+    let temp = {
+      currentCode: currentCodeNode,
+    };
+
+    chrome.runtime.sendMessage({
+      type: "STORE_DATA",
+      data: temp,
+    });
     chrome.runtime.sendMessage({
       type: "COMMAND",
       data: {
@@ -192,5 +277,12 @@
     chrome.runtime.sendMessage({ type: "OPEN_SIDEPANEL" });
   };
 
-  newProblemOpened();
+  const getCode = () => {
+    const codeContainer = document.querySelector(".view-lines");
+    if (codeContainer) {
+      return codeContainer.outerHTML;
+    } else {
+      return "";
+    }
+  };
 })();

@@ -1,6 +1,7 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated 
+from rest_framework.permissions import AllowAny, IsAuthenticated ,DjangoModelPermissionsOrAnonReadOnly
+from rest_framework.views import APIView
 
 from .serializers import ProfileSerializer, ProfileSerializerForAllFields
 from .models import CustomUser
@@ -9,6 +10,8 @@ from .github import Github
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
+
+
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -28,7 +31,6 @@ class userRegisterAPIView(generics.CreateAPIView):
     permission_classes = [AllowAny]
 
     def create(self, request, *args, **kwargs):
-        print('hrere', request.data)
         response = super().create(request, *args, **kwargs)
         github = Github(user_name= request.data['github_username'], access_token=request.data['access_token'])
         
@@ -77,3 +79,12 @@ class LoginAPiView(generics.GenericAPIView):
             return Response ({'refresh': str(refresh), 'access': str(refresh.access_token), 'username': user.username, 'repos': repos}, status=status.HTTP_200_OK)
         except:
             return Response({'error': 'invalid login'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class getAccessToken(APIView):
+    permission_classes = [AllowAny] 
+
+    # def get(self, request):
+
+
+        
