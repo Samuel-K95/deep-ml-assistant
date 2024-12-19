@@ -1,6 +1,8 @@
 chrome.tabs.onUpdated.addListener((tabId, tab) => {
+  console.log("change detected", tab);
   if (tab.title && tab.title.includes("deep-ml.com/problems")) {
-    console.log(tab);
+    console.log(tab, "new problem from service worker");
+    chrome.storage.session.clear();
     chrome.tabs.sendMessage(tabId, {
       type: "NEW",
       id: tabId,
@@ -12,7 +14,7 @@ chrome.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: true })
   .catch((error) => console.error(error));
 
-chrome.runtime.onMessage.addListener((message, sender) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("message recienved");
   if (message.type === "STORE_DATA") {
     chrome.storage.session.get(null, (existingData) => {
@@ -20,12 +22,13 @@ chrome.runtime.onMessage.addListener((message, sender) => {
       console.log("updated", updatedData);
       chrome.storage.session.set(updatedData, () => {
         if (chrome.runtime.lastError) {
-          console.error("Error storing data:", chrome.runtime.lastError);
+          sendResponse({
+            success: false,
+            error: chrome.runtime.lastError.message,
+          });
+        } else {
+          sendResponse({ success: true, data: updatedData });
         }
-
-        chrome.storage.session.get(null, (updatedItems) => {
-          console.log("Updated items after set:", updatedItems);
-        });
       });
     });
   } else if (message.type === "COMMAND") {
@@ -55,6 +58,7 @@ chrome.runtime.onMessage.addListener((message, sender) => {
             response_type = "analyze";
           }
           sendToSidePanel(response_type, data);
+          return true;
         }
       );
     } else if (message.data.command === "Debug") {
@@ -85,8 +89,14 @@ chrome.runtime.onMessage.addListener((message, sender) => {
     chrome.sidePanel.open({ tabId: sender.tab.id });
   } else if (message.type === "OPEN_NEWTAB") {
     console.log("open new tab");
-    chrome.tabs.create({ url: chrome.runtime.getURL("index.html") });
+    chrome.storage.session.get(null, (updatedItems) => {
+      console.log("Updated items after set:", updatedItems);
+    });
+    chrome.tabs.create({ url: chrome.runtime.getURL("index.html") }, () => {
+      sendResponse({ success: true });
+    });
   }
+  return true;
 });
 
 const sendToSidePanel = (type, data) => {

@@ -6,39 +6,26 @@ interface propType {
   html: string;
 }
 
-function htmlParser(htmlText: string) {
+function htmlParser(htmlCode: string) {
   const parser = new DOMParser();
-  const doc = parser.parseFromString(htmlText, "text/html");
-  const mirror = doc.querySelector(".CodeMirror-code");
-  if (!mirror) {
-    return "";
-  }
-  const ma = mirror.querySelectorAll("div");
-  const lines = Array.from(ma).map((div) => div.textContent!.slice(1));
-  const final = lines.filter((line) => line.length >= 1);
-  let ans = "";
-  let nums = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
+  const doc = parser.parseFromString(htmlCode, "text/html");
 
-  final.map((val) => {
-    let temp = false;
-    nums.map((num) => {
-      if (num === val[0]) {
-        temp = true;
-      }
-    });
-    if (temp) {
-      val = val.slice(1);
-    }
-    if (val) {
-      if (ans) {
-        ans += "\n" + val;
-      } else {
-        ans += val;
-      }
+  const viewLines = doc.querySelectorAll("div.view-line");
+
+  const codeLines: any = [];
+
+  viewLines.forEach((line) => {
+    const spans = line.children;
+    let codeLine = Array.from(spans)
+      .map((span) => span.textContent)
+      .join("");
+
+    if (!codeLines.includes(codeLine)) {
+      codeLines.push(codeLine);
     }
   });
-  console.log(ans);
-  return ans;
+
+  return codeLines.join("\n");
 }
 
 const CodeViewer = ({ html }: propType) => {

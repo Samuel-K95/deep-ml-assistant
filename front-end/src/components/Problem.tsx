@@ -8,6 +8,7 @@ const Problem = () => {
   let [currentCode, setCurrentCode] = useState(``);
   let [currentProblem, setCurrentProblem] = useState("");
   chrome.storage.session.get(null, (data) => {
+    console.log("current code", data.currentCode);
     setProblemTitle(data.title);
     setCurrentCode(data.currentCode);
     setCurrentProblem(data.problem);
