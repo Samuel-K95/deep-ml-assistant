@@ -12,33 +12,25 @@ const SignIn = () => {
 
   const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
 
-  let getToken = async () => {
-    let response = await fetch(
-      "http://127.0.0.1:8000/api/user/auth/get_token/",
-      {
-        method: "GET",
-      }
-    );
+  // let getToken = async () => {
+  //   let response = await fetch(
+  //     "http://127.0.0.1:8000/api/user/auth/get_token/",
+  //     {
+  //       method: "GET",
+  //     }
+  //   );
 
-    if (response.status === 200) {
-      return response;
-    }
+  //   if (response.status === 200) {
+  //     return response;
+  //   }
 
-    return "";
-  };
+  //   return "";
+  // };
 
   const handleSignIn = async () => {
-    let response = await fetch("http://127.0.0.1:8000/accounts/github/login/", {
-      method: "GET",
-    });
-
-    if (response.status === 200) {
-      let access_token = await getToken();
-
-      if (access_token != "") {
-        console.log("accesstoken", access_token);
-      }
-    }
+    console.log("Redirecting to GitHub OAuth");
+    // Redirect to GitHub OAuth authorization page
+    window.location.href = "http://127.0.0.1:8000/accounts/github/login/";
   };
 
   return (
@@ -105,7 +97,10 @@ const SignIn = () => {
 
           <button
             className="flex text-20 gap-5 m-5 w-[25%] bg-[#0f1216] items-center justify-center p-3 rounded-lg hover:bg-[#161B22]"
-            onClick={() => handleSignIn}
+            onClick={() => {
+              console.log("hello");
+              handleSignIn();
+            }}
           >
             <>
               <img

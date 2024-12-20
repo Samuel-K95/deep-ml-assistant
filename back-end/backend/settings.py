@@ -48,18 +48,12 @@ INSTALLED_APPS = [
 
     "corsheaders",
     "rest_framework",
-    "allauth",
-    "allauth.account",
-    "allauth.headless",
-    "allauth.socialaccount",
+
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
     'allauth.socialaccount.providers.github',
 ]
-
-HEADLESS_FRONTEND_URLS = {
-    "account_confirm_email": "https://app.project.org/account/verify-email/{key}",
-    "account_reset_password_from_key": "https://app.org/account/password/reset/key/{key}",
-    "account_signup": "https://app.org/account/signup",
-}
 
 
 SIMPLE_JWT = {
@@ -111,6 +105,16 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
 }
+SOCIALACCOUNT_PROVIDERS = {
+    'github': {
+        'SCOPE': [
+            'user',
+            'repo',
+            'read:org',
+        ],
+    }
+}
+
 
 CORS_ALLOWED_ORIGINS = [
     "chrome-extension://lohjfmdkjfmipjinbbieioofbnncaeok",
@@ -143,7 +147,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "django.template.context_processors.request"
+                "django.template.context_processors.request",
             ],
         },
     },
@@ -151,21 +155,11 @@ TEMPLATES = [
 
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`
+    'allauth.account.auth_backends.AuthenticationBackend',
     'django.contrib.auth.backends.ModelBackend',
 
-    # `allauth` specific authentication methods, such as login by email
-    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-SOCIALACCOUNT_PROVIDERS = {
-    'github': {
-        'SCOPE': [
-            'user',
-            'repo',
-            'read:org',
-        ],
-    }
-}
 
 WSGI_APPLICATION = "backend.wsgi.application"
 
@@ -211,11 +205,13 @@ USE_I18N = True
 
 USE_TZ = True
 
-SITE_ID = 1
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = "static/"
+SITE_ID = 1
+
+SOCIALACCOUNT_ADAPTER = 'user.adapters.CustomSocialAccountAdapter'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -223,3 +219,9 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = 'user.CustomUser'
+
+LOGIN_REDIRECT_URL = 'success'
+
+
+
+

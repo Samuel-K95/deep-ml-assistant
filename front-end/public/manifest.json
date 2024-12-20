@@ -8,7 +8,7 @@
             "32": "logo.png" 
         }
     },
-    "permissions": ["storage", "tabs", "scripting", "sidePanel"],
+    "permissions": ["storage", "tabs", "scripting", "sidePanel", "http://127.0.0.1:8000/"],
     "host_permissions": [
         "*://www.deep-ml.com/*"
     ],

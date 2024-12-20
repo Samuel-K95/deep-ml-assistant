@@ -1,5 +1,6 @@
-from django.urls.conf import path
-from .views import LoginAPiView, getAccessToken, userRegisterAPIView
+from django.urls.conf import path, include
+from .views import LoginAPiView, userRegisterAPIView, GithubLogin
+
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -9,8 +10,7 @@ from rest_framework_simplejwt.views import (
 urlpatterns = [
     path('auth/login/', LoginAPiView.as_view(), name='login api view'),
     path('auth/signUp/', userRegisterAPIView.as_view(), name='signup api view'),
-    path('auth/get_token/', getAccessToken.as_view(), name='get_access_token' ),
-
     path('auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('auth/github/', GithubLogin.as_view(), name='success'),
 ]
